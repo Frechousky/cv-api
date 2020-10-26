@@ -22,11 +22,14 @@ public class WorkExperience {
     @Lazy
     @ManyToOne
     private Company company;
+
     private String position;
 
     @OneToMany
     @Lazy
     private List<WorkExperienceDescription> description;
+
     private Date start;
+
     private Date end;
 }
