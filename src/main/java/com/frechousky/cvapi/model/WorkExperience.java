@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @ToString
+@With
 public class WorkExperience {
 
     @Id

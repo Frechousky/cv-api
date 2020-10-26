@@ -15,6 +15,7 @@ import javax.validation.constraints.NotBlank;
 @Entity
 @Table(name = "TEST")
 @ToString
+@With
 public class WorkExperienceDescription {
 
     @Id

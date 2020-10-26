@@ -13,6 +13,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @Entity
 @ToString
+@With
 public class Company {
 
     @Id

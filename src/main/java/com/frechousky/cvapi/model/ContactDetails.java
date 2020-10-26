@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Entity
 @ToString
+@With
 public class ContactDetails {
 
     @Id
