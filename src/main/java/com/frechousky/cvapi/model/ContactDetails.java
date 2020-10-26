@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -37,6 +38,7 @@ public class ContactDetails {
     private String phone;
 
     @NotBlank(message = "Contact details mail must not be blank")
+    @Email
     private String mail;
 
     @NotNull(message = "Contact details age must not be not null")
