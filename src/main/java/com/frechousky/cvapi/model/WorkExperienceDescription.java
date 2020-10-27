@@ -14,7 +14,6 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @Entity
 @Table(name = "TEST")
-@ToString
 @With
 public class WorkExperienceDescription {
 
