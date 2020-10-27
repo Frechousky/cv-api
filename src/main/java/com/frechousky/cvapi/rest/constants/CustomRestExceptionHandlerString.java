@@ -1,4 +1,4 @@
-package com.frechousky.cvapi.constant;
+package com.frechousky.cvapi.rest.constants;
 
 public class CustomRestExceptionHandlerString {
 

@@ -1,11 +1,12 @@
-package com.frechousky.cvapi;
+package com.frechousky.cvapi.rest;
 
-import com.frechousky.cvapi.constant.CustomRestExceptionHandlerString;
 import com.frechousky.cvapi.error.ApiError;
+import com.frechousky.cvapi.rest.constants.CustomRestExceptionHandlerString;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNullApi;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;

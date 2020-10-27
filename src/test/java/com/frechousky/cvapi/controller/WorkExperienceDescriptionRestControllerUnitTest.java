@@ -1,10 +1,11 @@
 package com.frechousky.cvapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.frechousky.cvapi.constant.CustomRestExceptionHandlerString;
-import com.frechousky.cvapi.constant.RestPath;
+import com.frechousky.cvapi.rest.constants.CustomRestExceptionHandlerString;
+import com.frechousky.cvapi.rest.controller.constants.RestPath;
 import com.frechousky.cvapi.model.WorkExperienceDescription;
 import com.frechousky.cvapi.repository.WorkExperienceDescriptionRepository;
+import com.frechousky.cvapi.rest.controller.WorkExperienceDescriptionsRestController;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,6 @@ import org.stringtemplate.v4.ST;
 import javax.servlet.ServletContext;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
@@ -187,7 +187,7 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(jsonPath("$.message", is(expectedMessage)))
-                .andExpect(jsonPath("$.errors[0]", is(expectedErrorMessage)));;
+                .andExpect(jsonPath("$.errors[0]", is(expectedErrorMessage)));
     }
 
     @Test

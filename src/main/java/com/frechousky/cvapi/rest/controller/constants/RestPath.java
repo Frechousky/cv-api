@@ -1,4 +1,4 @@
-package com.frechousky.cvapi.constant;
+package com.frechousky.cvapi.rest.controller.constants;
 
 public class RestPath {
 

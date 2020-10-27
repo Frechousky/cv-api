@@ -1,20 +1,13 @@
-package com.frechousky.cvapi.controller;
+package com.frechousky.cvapi.rest.controller;
 
-import com.frechousky.cvapi.CRUDSpringRestController;
-import com.frechousky.cvapi.constant.RestPath;
+import com.frechousky.cvapi.rest.CRUDSpringRestController;
 import com.frechousky.cvapi.model.Company;
 import com.frechousky.cvapi.repository.CompanyRepository;
-import lombok.SneakyThrows;
+import com.frechousky.cvapi.rest.controller.constants.RestPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(RestPath.COMPANIES_REST_CONTROLLER_PATH)

@@ -1,22 +1,19 @@
-package com.frechousky.cvapi;
+package com.frechousky.cvapi.rest;
 
 
 import org.springframework.core.MethodParameter;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +31,7 @@ public abstract class CRUDSpringRestController<T> {
     /**
      * Generates URI to access entity after creation.
      *
-     * @param entity
+     * @param entity entity created
      * @return URI to access entity after creation
      */
     protected URI onCreateBuildEntityLocationURI(T entity) {
@@ -49,7 +46,7 @@ public abstract class CRUDSpringRestController<T> {
     /**
      * Build the entity to delete with repository.delete.
      *
-     * @param id
+     * @param id id of entity to delete
      * @return entity to be deleted
      */
     protected abstract T onDeleteBuildEntityToDelete(Integer id);
