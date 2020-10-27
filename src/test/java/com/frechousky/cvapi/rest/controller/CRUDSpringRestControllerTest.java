@@ -1,25 +1,27 @@
-package com.frechousky.cvapi.controller;
+package com.frechousky.cvapi.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frechousky.cvapi.rest.constants.CustomRestExceptionHandlerString;
-import com.frechousky.cvapi.rest.controller.constants.RestPath;
-import com.frechousky.cvapi.model.WorkExperienceDescription;
-import com.frechousky.cvapi.repository.WorkExperienceDescriptionRepository;
-import com.frechousky.cvapi.rest.controller.WorkExperienceDescriptionsRestController;
-import org.assertj.core.util.Lists;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.validation.annotation.Validated;
 import org.stringtemplate.v4.ST;
 
 import javax.servlet.ServletContext;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,44 +31,86 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(WorkExperienceDescriptionsRestController.class)
-public class WorkExperienceDescriptionRestControllerUnitTest {
+public abstract class CRUDSpringRestControllerTest<T, U extends JpaRepository<T, Integer>> {
 
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
-    WorkExperienceDescriptionRepository repository;
+    U repository;
 
     @Autowired
     ServletContext context;
 
-    List<WorkExperienceDescription> workExperienceDescriptions;
-    ObjectMapper mapper = new ObjectMapper();
+    final ObjectMapper mapper = new ObjectMapper();
 
-    public WorkExperienceDescriptionRestControllerUnitTest() {
-        workExperienceDescriptions = Lists.newArrayList(
-                WorkExperienceDescription.builder().id(1).label("Label 1").build(),
-                WorkExperienceDescription.builder().id(2).label("Label 2").build());
-    }
+    /**
+     * @return list of entities for database mocking purpose
+     */
+    public abstract @NotEmpty List<T> getAllEntities();
+
+    /**
+     * @param entity an entity to copy data from (optional)
+     * @return entity to serialize in JSON and to create in database, must satisfy entity validation rules
+     */
+    public abstract @NotNull @Validated T getEntityToCreate(@NotNull T entity);
+
+    /**
+     * @param entity an entity to copy data from (optional)
+     * @return entity to serialize in JSON and to update in database, must satisfy entity validation rules
+     */
+    public abstract @NotNull @Validated T getEntityToUpdate(@NotNull T entity);
+
+    /**
+     * Retrieve id from an entity
+     *
+     * @param entity entity to retrieve id from
+     * @return id of entity
+     */
+    public abstract @NotNull Integer getIdFromEntity(@NotNull T entity);
+
+    /**
+     * @return invalid JSON data to trigger MethodArgumentNotValidException
+     */
+    public abstract @NotBlank String getInvalidJsonData();
+
+
+    /**
+     * @return REST controller URL (without '/' at the end)
+     */
+    public abstract @NotBlank String getRestControllerUrl();
+
+    public abstract @NotEmpty List<T> deserializeJsonArray(@NotBlank String json) throws Exception;
+
+    public abstract @NotNull T deserializeJsonObject(@NotBlank String json) throws Exception;
 
     @Test
-    public void create_ifInvalidData_returnsHttp400() throws Exception {
-        mockMvc.perform(post(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH)
-                .content("")
+    public void create_ifInvalidData_returnsHttp400_andErrorMessage() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = post(getRestControllerUrl());
+
+        String expectedMessage = new ST(CustomRestExceptionHandlerString.VALIDATION_ERROR)
+                .add("httpMethod", HttpMethod.POST.name())
+                .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL())
+                .render();
+
+        mockMvc.perform(requestBuilder
+                .content(getInvalidJsonData())
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(expectedMessage)))
+                .andExpect(jsonPath("$.errors", hasSize(greaterThan(0))));
     }
 
     @Test
     public void create_ifValidData_returnsHttp201AndHasLocationHeader() throws Exception {
-        WorkExperienceDescription toCreate = WorkExperienceDescription.builder().label(workExperienceDescriptions.get(0).getLabel()).build();
-        when(repository.save(toCreate)).thenReturn(workExperienceDescriptions.get(0));
+        T entityCreated = getAllEntities().get(0);
+        T toCreate = getEntityToCreate(entityCreated);
+        when(repository.save(toCreate)).thenReturn(entityCreated);
 
         // Location without host and port
-        String locationSubStr = RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/" + workExperienceDescriptions.get(0).getId();
+        String locationSubStr = getRestControllerUrl() + "/" + getIdFromEntity(entityCreated);
 
-        mockMvc.perform(post(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH)
+        mockMvc.perform(post(getRestControllerUrl())
                 .content(mapper.writeValueAsString(toCreate))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -75,7 +119,8 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
 
     @Test
     public void delete_ifNoUrlPathIdProvided_returnsHttp400_andErrorMessage() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = delete(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH);
+        MockHttpServletRequestBuilder requestBuilder = delete(getRestControllerUrl());
+
         String expectedMessage = new ST(CustomRestExceptionHandlerString.MISSING_PATH_VARIABLE_ERROR)
                 .add("httpMethod", HttpMethod.DELETE.name())
                 .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL().toString())
@@ -96,14 +141,17 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
 
     @Test
     public void delete_ifUrlPathIdIsNotInteger_returnsHttp400_andErrorMessage() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = delete(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/a");
+        String invalidPathId = "a";
+        MockHttpServletRequestBuilder requestBuilder = delete(getRestControllerUrl() + "/" + invalidPathId);
+
         String expectedMessage = new ST(CustomRestExceptionHandlerString.PARAMETER_TYPE_MISMATCH_ERROR)
                 .add("httpMethod", HttpMethod.DELETE.name())
                 .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL().toString())
                 .render();
+
         String expectedErrorMessage = new ST(CustomRestExceptionHandlerString.PARAMETER_TYPE_MISMATCH_ERROR_EXPLICIT_MESSAGE)
                 .add("expectedType", Integer.class.getSimpleName())
-                .add("receivedValue", "a")
+                .add("receivedValue", invalidPathId)
                 .render();
 
         mockMvc.perform(requestBuilder)
@@ -113,56 +161,75 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
     }
 
     @Test
-    public void delete_ifUrlPathIdProvided_returnsHttp204() throws Exception {
-        mockMvc.perform(delete(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/1"))
+    public void delete_ifUrlPathIdProvided_andEntityDoesNotExist_returnsHttp204() throws Exception {
+        mockMvc.perform(delete(getRestControllerUrl() + "/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void delete_ifUrlPathIdProvided_andEntityExist_returnsHttp204() throws Exception {
+        Integer id = getIdFromEntity(getAllEntities().get(0));
+        when(repository.findById(id))
+                .thenReturn(Optional.of(getAllEntities().get(0)));
+
+        mockMvc.perform(delete(getRestControllerUrl() + "/" + id))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     public void findAll_ifEntitiesExist_returnsHttp200AndEntities() throws Exception {
-        when(repository.findAll()).thenReturn(workExperienceDescriptions);
+        when(repository.findAll()).thenReturn(getAllEntities());
 
-        mockMvc.perform(get(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH))
+        String json = mockMvc.perform(get(getRestControllerUrl()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*]", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(workExperienceDescriptions.get(0).getId())))
-                .andExpect(jsonPath("$[0].label", is(workExperienceDescriptions.get(0).getLabel())))
-                .andExpect(jsonPath("$[1].id", is(workExperienceDescriptions.get(1).getId())))
-                .andExpect(jsonPath("$[1].label", is(workExperienceDescriptions.get(1).getLabel())));
+                .andReturn().getResponse().getContentAsString();
+
+        // Convert JSON to list of entities
+        List<T> entitiesFromJson = deserializeJsonArray(json);
+
+        Assert.assertEquals(getAllEntities(), entitiesFromJson);
     }
 
     @Test
     public void findAll_ifNoEntityExists_returnsHttp404() throws Exception {
-        mockMvc.perform(get(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH))
+        mockMvc.perform(get(getRestControllerUrl()))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void findById_ifEntityDoesNotExist_returnsHttp404() throws Exception {
-        mockMvc.perform(get(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/1"))
+        mockMvc.perform(get(getRestControllerUrl() + "/1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void findById_ifEntityExists_returnsHttp200AndEntity() throws Exception {
-        when(repository.findById(1)).thenReturn(Optional.ofNullable(workExperienceDescriptions.get(0)));
+        T entityToFind = getAllEntities().get(0);
+        when(repository.findById(getIdFromEntity(entityToFind))).thenReturn(Optional.ofNullable(entityToFind));
 
-        mockMvc.perform(get(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/1"))
+        String json = mockMvc.perform(get(getRestControllerUrl() + "/" + getIdFromEntity(entityToFind)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(workExperienceDescriptions.get(0).getId())))
-                .andExpect(jsonPath("$.label", is(workExperienceDescriptions.get(0).getLabel())));
+                .andReturn().getResponse().getContentAsString();
+
+        // Convert JSON string to entity
+        T entityFromJson = deserializeJsonObject(json);
+
+        Assert.assertEquals(entityToFind, entityFromJson);
     }
 
     @Test
     public void findById_ifUrlPathIdIsNotInteger_returnsHttp400_andErrorMessage() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = get(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/a");
+        String invalidPathId = "a";
+        MockHttpServletRequestBuilder requestBuilder = get(getRestControllerUrl() + "/" + invalidPathId);
+
         String expectedMessage = new ST(CustomRestExceptionHandlerString.PARAMETER_TYPE_MISMATCH_ERROR)
                 .add("httpMethod", HttpMethod.GET.name())
                 .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL().toString())
                 .render();
+
         String expectedErrorMessage = new ST(CustomRestExceptionHandlerString.PARAMETER_TYPE_MISMATCH_ERROR_EXPLICIT_MESSAGE)
                 .add("expectedType", Integer.class.getSimpleName())
-                .add("receivedValue", "a")
+                .add("receivedValue", invalidPathId)
                 .render();
 
         mockMvc.perform(requestBuilder)
@@ -173,11 +240,13 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
 
     @Test
     public void notSupportedHttpMethod_returnsHttp405_andErrorMessage() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = patch(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH);
+        MockHttpServletRequestBuilder requestBuilder = patch(getRestControllerUrl());
+
         String expectedMessage = new ST(CustomRestExceptionHandlerString.HTTP_METHOD_NOT_SUPPORTED_ERROR)
                 .add("httpMethod", HttpMethod.PATCH.name())
                 .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL().toString())
                 .render();
+
         String expectedErrorMessage = new ST(CustomRestExceptionHandlerString.HTTP_METHOD_NOT_SUPPORTED_ERROR_EXPLICIT_MESSAGE)
                 .add("supportedHttpMethods", "[GET, POST, PUT, DELETE]")
                 .render();
@@ -192,7 +261,8 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
 
     @Test
     public void update_ifNoUrlPathIdProvided_returnsHttp400_andErrorMessage() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = put(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH);
+        MockHttpServletRequestBuilder requestBuilder = put(getRestControllerUrl());
+
         String expectedMessage = new ST(CustomRestExceptionHandlerString.MISSING_PATH_VARIABLE_ERROR)
                 .add("httpMethod", HttpMethod.PUT.name())
                 .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL().toString())
@@ -213,14 +283,17 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
 
     @Test
     public void update_ifUrlPathIdIsNotInteger_returnsHttp400_andErrorMessage() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = put(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/a");
+        String invalidPathId = "a";
+        MockHttpServletRequestBuilder requestBuilder = put(getRestControllerUrl() + "/" + invalidPathId);
+
         String expectedMessage = new ST(CustomRestExceptionHandlerString.PARAMETER_TYPE_MISMATCH_ERROR)
                 .add("httpMethod", HttpMethod.PUT.name())
                 .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL().toString())
                 .render();
+
         String expectedErrorMessage = new ST(CustomRestExceptionHandlerString.PARAMETER_TYPE_MISMATCH_ERROR_EXPLICIT_MESSAGE)
                 .add("expectedType", Integer.class.getSimpleName())
-                .add("receivedValue", "a")
+                .add("receivedValue", invalidPathId)
                 .render();
 
         mockMvc.perform(requestBuilder)
@@ -231,20 +304,59 @@ public class WorkExperienceDescriptionRestControllerUnitTest {
 
     @Test
     public void update_ifUrlPathIdProvided_andInvalidData_returnsHttp400() throws Exception {
-        mockMvc.perform(put(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/1")
-                .content("").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put(getRestControllerUrl() + "/" + 1)
+                .content(getInvalidJsonData())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void update_ifUrlPathIdProvided_andValidData_andEntityDoesNotExist_returnsHttp404() throws Exception {
-        WorkExperienceDescription toCreate = WorkExperienceDescription.builder().label(workExperienceDescriptions.get(0).getLabel()).build();
-        when(repository.findById(1)).thenReturn(Optional.empty());
+        T toUpdate = getEntityToUpdate(getAllEntities().get(0));
 
-        mockMvc.perform(put(RestPath.WORK_EXPERIENCE_DESCRIPTIONS_REST_CONTROLLER_PATH + "/1")
-                .content(mapper.writeValueAsString(toCreate))
+        // Return Option.empty to avoid NPE on update call
+        when(repository.findById(getIdFromEntity(toUpdate))).thenReturn(Optional.empty());
+
+        mockMvc.perform(put(getRestControllerUrl() + "/" + getIdFromEntity(toUpdate))
+                .content(mapper.writeValueAsString(toUpdate))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void update_ifUrlPathIdProvided_andValidData_andEntityDoesExist_andEntityIdEqualsPathId_returnsHttp204() throws Exception {
+        T toUpdate = getEntityToUpdate(getAllEntities().get(0));
+
+        Integer pathId = getIdFromEntity(toUpdate);
+        when(repository.findById(pathId)).thenReturn(Optional.of(getAllEntities().get(0)));
+
+        mockMvc.perform(put(getRestControllerUrl() + "/" + pathId)
+                .content(mapper.writeValueAsString(toUpdate))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void update_ifUrlPathIdProvided_andValidData_andEntityDoesExist_andEntityIdNotEqualsPathId_returnsHttp400_andErrorMessage() throws Exception {
+        T toUpdate = getEntityToUpdate(getAllEntities().get(0));
+
+        // pathId = entity.id+1 to have entity.id != pathId
+        Integer pathId = getIdFromEntity(toUpdate) + 1;
+        when(repository.findById(pathId)).thenReturn(Optional.of(getAllEntities().get(0)));
+
+        MockHttpServletRequestBuilder requestBuilder = put(getRestControllerUrl() + "/" + pathId);
+
+        String expectedMessage = new ST(CustomRestExceptionHandlerString.VALIDATION_ERROR)
+                .add("httpMethod", HttpMethod.PUT.name())
+                .add("requestUrl", requestBuilder.buildRequest(context).getRequestURL())
+                .render();
+
+        mockMvc.perform(requestBuilder
+                .content(mapper.writeValueAsString(toUpdate))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is(expectedMessage)))
+                .andExpect(jsonPath("$.errors", hasSize(greaterThan(0))));
     }
 
 }
