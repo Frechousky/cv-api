@@ -35,12 +35,11 @@ public abstract class CRUDSpringRestController<T> {
      * @return URI to access entity after creation
      */
     protected URI onCreateBuildEntityLocationURI(T entity) {
-        URI location = ServletUriComponentsBuilder
+        return ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(getEntityId(entity))
                 .toUri();
-        return location;
     }
 
     /**
@@ -57,7 +56,7 @@ public abstract class CRUDSpringRestController<T> {
      * @param urlPathId id of entity to update from URL path
      * @param newEntity entity with updates sent by client
      * @param oldEntity entity to update retrieved from database
-     * @throws MethodArgumentNotValidException if newEntiy.id is not null AND urlPathId != newEntity.id
+     * @throws MethodArgumentNotValidException if newEntity.id is not null AND urlPathId != newEntity.id
      */
     protected void onUpdateBeforeSave(Integer urlPathId, T newEntity, T oldEntity) throws MethodArgumentNotValidException {
         Integer newEntityId = getEntityId(newEntity);
@@ -103,7 +102,7 @@ public abstract class CRUDSpringRestController<T> {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity delete(@PathVariable("id") Integer id) throws MethodArgumentNotValidException {
+    public ResponseEntity delete(@PathVariable("id") Integer id) {
         T toDelete = onDeleteBuildEntityToDelete(id);
         getRepository().delete(toDelete);
         return ResponseEntity.noContent().build();
@@ -112,7 +111,7 @@ public abstract class CRUDSpringRestController<T> {
     @DeleteMapping
     public void deleteWithoutId() throws NoSuchMethodException, MissingPathVariableException {
         MethodParameter mp = new MethodParameter(
-                CRUDSpringRestController.class.getMethod("delete", new Class[] { Integer.class }), 0);
+                CRUDSpringRestController.class.getMethod("delete", Integer.class), 0);
         throw new MissingPathVariableException("id", mp);
     }
 
@@ -130,7 +129,7 @@ public abstract class CRUDSpringRestController<T> {
     @PutMapping
     public void updateWithoutId() throws NoSuchMethodException, MissingPathVariableException {
         MethodParameter mp = new MethodParameter(
-                CRUDSpringRestController.class.getMethod("update", new Class[] { Integer.class, Object.class }), 0);
+                CRUDSpringRestController.class.getMethod("update", Integer.class, Object.class), 0);
         throw new MissingPathVariableException("id", mp);
     }
 
