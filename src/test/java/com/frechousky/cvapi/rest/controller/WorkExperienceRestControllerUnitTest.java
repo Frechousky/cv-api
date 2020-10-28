@@ -5,7 +5,7 @@ import com.frechousky.cvapi.model.Company;
 import com.frechousky.cvapi.model.WorkExperience;
 import com.frechousky.cvapi.model.WorkExperienceDescription;
 import com.frechousky.cvapi.repository.WorkExperienceRepository;
-import com.frechousky.cvapi.rest.controller.constants.RestPath;
+import com.frechousky.cvapi.rest.controller.constants.RestControllerPath;
 import lombok.SneakyThrows;
 import org.assertj.core.util.Lists;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -59,7 +59,7 @@ public class WorkExperienceRestControllerUnitTest extends CRUDSpringRestControll
 
     @Override
     public String getRestControllerUrl() {
-        return RestPath.WORK_EXPERIENCES_REST_CONTROLLER_PATH;
+        return RestControllerPath.WORK_EXPERIENCES_REST_CONTROLLER_PATH;
     }
 
     @Override

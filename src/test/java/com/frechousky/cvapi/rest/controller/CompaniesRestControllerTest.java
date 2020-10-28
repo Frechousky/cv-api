@@ -3,7 +3,7 @@ package com.frechousky.cvapi.rest.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.frechousky.cvapi.model.Company;
 import com.frechousky.cvapi.repository.CompanyRepository;
-import com.frechousky.cvapi.rest.controller.constants.RestPath;
+import com.frechousky.cvapi.rest.controller.constants.RestControllerPath;
 import lombok.SneakyThrows;
 import org.assertj.core.util.Lists;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -54,7 +54,7 @@ public class CompaniesRestControllerTest extends CRUDSpringRestControllerTest<Co
 
     @Override
     public @NotBlank String getRestControllerUrl() {
-        return RestPath.COMPANIES_REST_CONTROLLER_PATH;
+        return RestControllerPath.COMPANIES_REST_CONTROLLER_PATH;
     }
 
     @Override
