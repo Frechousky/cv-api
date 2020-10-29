@@ -1,6 +1,7 @@
 package com.frechousky.cvapi.model;
 
 import lombok.*;
+import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,9 +26,8 @@ public class Language {
     @NotBlank(message = "Language label must not be blank")
     private String label;
 
-    @Min(value = 0L, message = "Language level must be greater than or equal to 0")
-    @Max(value = 5L, message = "Language level must be lesser than or equal to 5")
+    @Range(min = 0, max = 5, message = "Language level must be >= 0 and <= 5")
     @NotNull(message = "Language level must be not null")
-    private Integer level;
+    private Double level;
 
 }
