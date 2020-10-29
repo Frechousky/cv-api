@@ -2,9 +2,7 @@ package com.frechousky.cvapi.model;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
@@ -16,12 +14,19 @@ import java.util.List;
 @With
 public class Cv {
 
+    @OneToOne
     ContactInformation contactInformation;
+    @OneToMany
     List<Language> languages;
+    @OneToMany
     List<Skill> skills;
+    @ElementCollection
     List<String> hobbies;
+    @OneToMany
     List<WorkExperience> workExperiences;
+    @OneToMany
     List<Study> studies;
+    @OneToMany
     List<Project> projects;
     @Id
     @GeneratedValue
