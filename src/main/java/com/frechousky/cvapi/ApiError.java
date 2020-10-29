@@ -1,4 +1,4 @@
-package com.frechousky.cvapi.error;
+package com.frechousky.cvapi;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;

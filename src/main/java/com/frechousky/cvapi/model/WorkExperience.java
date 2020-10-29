@@ -1,7 +1,6 @@
 package com.frechousky.cvapi.model;
 
 import lombok.*;
-import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -22,18 +21,15 @@ public class WorkExperience {
     @GeneratedValue
     private Integer id;
 
-    @Lazy
     @ManyToOne
-    @NotNull(message = "Work experience company must not be null")
     private Company company;
 
     @NotBlank(message = "Work experience position must not be blank")
     private String position;
 
-    @OneToMany
-    @Lazy
-    @NotEmpty
-    private List<WorkExperienceDescription> description;
+    @ElementCollection
+    @NotEmpty(message = "Work experience description must not be empty")
+    private List<String> description;
 
     @NotNull(message = "Work experience starting date must not be null")
     private Date start;
