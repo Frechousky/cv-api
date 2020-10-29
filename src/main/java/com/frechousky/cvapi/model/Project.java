@@ -3,6 +3,7 @@ package com.frechousky.cvapi.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -32,6 +33,7 @@ public class Project {
     @NotNull(message = "Project year must be not null")
     private Date year;
 
+    @ElementCollection
     @NotEmpty(message = "Project description must be not empty")
     private List<String> description;
 
