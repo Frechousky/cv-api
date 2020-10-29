@@ -28,11 +28,11 @@ public class ContactInformation {
     @NotBlank(message = "Contact details address must not be blank")
     private String address;
 
-    @NotBlank(message = "Contact details zip code must not be blank")
-    private String zipCode;
-
     @NotBlank(message = "Contact details city must not be blank")
     private String city;
+
+    @NotBlank(message = "Contact details zip code must not be blank")
+    private String zipCode;
 
     @NotBlank(message = "Contact details phone must not be blank")
     private String phone;
