@@ -29,7 +29,7 @@ public class Project {
     @NotBlank(message = "Project title must be not blank")
     private String title;
 
-    @JsonFormat(pattern = "yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy")
     @NotNull(message = "Project year must be not null")
     private Date year;
 

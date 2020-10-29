@@ -1,5 +1,6 @@
 package com.frechousky.cvapi.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,8 +32,10 @@ public class WorkExperience {
     @NotEmpty(message = "Work experience description must not be empty")
     private List<String> description;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/yyyy")
     @NotNull(message = "Work experience starting date must not be null")
     private Date start;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/yyyy")
     private Date end;
 }
