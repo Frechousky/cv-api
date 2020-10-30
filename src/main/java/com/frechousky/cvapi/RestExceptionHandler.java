@@ -3,6 +3,7 @@ package com.frechousky.cvapi;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,6 +18,23 @@ import java.util.List;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
+
+    @ExceptionHandler
+    public ResponseEntity<ApiError> handleException(Exception ex, WebRequest request) {
+        ServletWebRequest r = (ServletWebRequest) request;
+        String message = new ST(RestExceptionHandlerString.UNHANDLED_EXCEPTION_ERROR)
+                .add("httpMethod", r.getHttpMethod().toString())
+                .add("requestUrl", r.getRequest().getRequestURL())
+                .render();
+
+        ApiError apiError = ApiError.builder()
+                .message(message)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build();
+
+        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+
+    }
 
     @ExceptionHandler
     public ResponseEntity<ApiError> handleTransactionSystemException(TransactionSystemException ex, WebRequest request) {
@@ -81,5 +99,24 @@ public class RestExceptionHandler {
         return ResponseEntity.status(apiError.getStatus()).body(apiError);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<ApiError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+        ServletWebRequest r = (ServletWebRequest) request;
+        String message = new ST(RestExceptionHandlerString.MESSAGE_NOT_READABLE_EXCEPTION)
+                .add("httpMethod", r.getHttpMethod().toString())
+                .add("requestUrl", r.getRequest().getRequestURL())
+                .render();
+
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getMostSpecificCause().getMessage());
+
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(message)
+                .errors(errors)
+                .build();
+
+        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+    }
 
 }
