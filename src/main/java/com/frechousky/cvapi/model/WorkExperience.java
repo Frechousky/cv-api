@@ -19,7 +19,7 @@ import java.util.List;
 public class WorkExperience {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
