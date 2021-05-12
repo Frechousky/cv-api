@@ -10,6 +10,8 @@ services:
       - MYSQL_DATABASE=cv_api
     ports:
       - 3306:3306
+    volumes:
+      - ./data/mysql:/var/lib/mysql:z
 
   cv-api:
     build: .
