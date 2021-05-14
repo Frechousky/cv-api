@@ -37,12 +37,12 @@ INSERT INTO project_description
 (2          , 'description 3'   );
 
 INSERT INTO skill
-(label          , level , icon) VALUES
-('java'         , 4     , NULL),
-('python'       , 3.5   , NULL),
-('php'          , 3     , NULL),
-('javascript'   , 3.5   , NULL),
-('react'        , 2     , NULL);
+(label          , level ) VALUES
+('java'         , 4     ),
+('python'       , 3.5   ),
+('php'          , 3     ),
+('javascript'   , 3.5   ),
+('react'        , 2     );
 
 INSERT INTO study
 (degree                                         , specialization                , url                               , school                        , start         , end           , city      ) VALUES

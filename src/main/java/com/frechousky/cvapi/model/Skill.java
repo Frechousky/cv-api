@@ -28,6 +28,4 @@ public class Skill {
     @NotNull(message = "Skill level must be not null")
     @Range(min = 0, max = 5, message = "Skill level must be >= 0 and <= 5")
     private Double level;
-
-    private String icon;
 }
