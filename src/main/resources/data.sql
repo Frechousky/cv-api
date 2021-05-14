@@ -46,9 +46,9 @@ INSERT INTO skill
 
 INSERT INTO study
 (degree                                         , specialization                , url                               , school                        , start         , end           , city      ) VALUES
-('master degree in computer science'            , 'software engineering'        , 'https://www.cci.univ-tours.fr/'  , 'University François Rabelais', '2016/09/01'  , '2017/09/01'  , 'Tours'   ),
-('master degree in mathematics and electronics' , 'signal and image processing' , NULL                              , 'University of Bordeaux'      , '2013/09/01'  , '2015/09/01'  , 'Bordeaux'),
-('bachelor degree in applied mathematics'       , 'mathematics and engineering' , NULL                              , 'University of Bordeaux'      , '2009/09/01'  , '2013/09/01'  , 'Bordeaux');
+('master degree in computer science'            , 'software engineering'        , 'https://www.cci.univ-tours.fr/'  , 'university françois rabelais', '2016/09/01'  , '2017/09/01'  , 'tours'   ),
+('master degree in mathematics and electronics' , 'signal and image processing' , NULL                              , 'university of bordeaux'      , '2013/09/01'  , '2015/09/01'  , 'bordeaux'),
+('bachelor degree in applied mathematics'       , 'mathematics and engineering' , NULL                              , 'university of bordeaux'      , '2009/09/01'  , '2013/09/01'  , 'bordeaux');
 
 INSERT INTO study_description
 (study_id   , description       ) VALUES
