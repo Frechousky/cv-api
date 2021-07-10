@@ -45,10 +45,10 @@ INSERT INTO skill
 ('react'        , 2     );
 
 INSERT INTO study
-(degree                                         , specialization                , url                               , school                        , start         , end           , city      ) VALUES
-('master degree in computer science'            , 'software engineering'        , 'https://www.cci.univ-tours.fr/'  , 'university françois rabelais', '2016/09/01'  , '2017/09/01'  , 'tours'   ),
-('master degree in mathematics and electronics' , 'signal and image processing' , NULL                              , 'university of bordeaux'      , '2013/09/01'  , '2015/09/01'  , 'bordeaux'),
-('bachelor degree in applied mathematics'       , 'mathematics and engineering' , NULL                              , 'university of bordeaux'      , '2009/09/01'  , '2013/09/01'  , 'bordeaux');
+(degree    , field                        , specialization               , url                               , school                        , start         , end           , city      ) VALUES
+('MASTER'  , 'computer sciences'          , 'software engineering'       , 'https://www.cci.univ-tours.fr/'  , 'university françois rabelais', '2016/09/01'  , '2017/09/01'  , 'tours'   ),
+('MASTER'  , 'mathematics and electronics', 'signal and image processing', NULL                              , 'university of bordeaux'      , '2013/09/01'  , '2015/09/01'  , 'bordeaux'),
+('BACHELOR', 'applied mathematics'        , 'mathematics and engineering', NULL                              , 'university of bordeaux'      , '2009/09/01'  , '2013/09/01'  , 'bordeaux');
 
 INSERT INTO study_description
 (study_id   , description       ) VALUES

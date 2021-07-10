@@ -23,8 +23,12 @@ public class Study {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank(message = "Study degree must not be blank")
-    private String degree;
+    @NotNull(message = "Study degree must not be blank")
+    @Enumerated(EnumType.STRING)
+    private Degree degree;
+
+    @NotBlank(message = "Field must not be blank")
+    private String field;
 
     @NotBlank(message = "Study specialization must not be blank")
     private String specialization;
@@ -48,4 +52,10 @@ public class Study {
     @NotEmpty(message = "Study description must be not empty")
     private List<String> description;
 
+    public enum Degree {
+        BACHELOR,
+        MASTER;
+    }
+
 }
+
