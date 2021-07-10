@@ -1,6 +1,13 @@
 package com.frechousky.cvapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -10,11 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.stringtemplate.v4.ST;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -33,7 +35,11 @@ public class RestExceptionHandler {
                 .build();
 
         return ResponseEntity.status(apiError.getStatus()).body(apiError);
+    }
 
+    @ExceptionHandler
+    public ResponseEntity<ApiError> handleEntityNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler
