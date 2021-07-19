@@ -1,2 +1,2 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 docker-compose --env-file docker-compose.dev.env start cv-api
