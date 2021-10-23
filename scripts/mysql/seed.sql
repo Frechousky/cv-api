@@ -1,7 +1,4 @@
-/** 
-    Populate database on application start-up.
-    This script must not be executed on production.
-*/
+/* Seed database */
 INSERT INTO company
 (name                       , field                 , country   , city          ) VALUES
 ('sopra banking software'   , 'banking'             , 'france'  , 'tours'       ),

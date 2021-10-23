@@ -1,4 +1,4 @@
-package com.frechousky.cvapi;
+package com.frechousky.cvapi.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
 @Component
-public class CustomBeanPostProcessor implements BeanPostProcessor {
+public class DatabaseTimeoutConfig implements BeanPostProcessor {
 
     @Value("${datasource.init.fail.timeout}")
     public long initializationFailTimeout;

@@ -1,4 +1,4 @@
-package com.frechousky.cvapi;
+package com.frechousky.cvapi.config;
 
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -6,7 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringDataRestCustomization implements RepositoryRestConfigurer {
+public class CorsConfig implements RepositoryRestConfigurer {
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
