@@ -7,7 +7,7 @@ INSERT INTO company
 
 INSERT INTO contact_information 
 (first_name , last_name , address               , zip_code  , city      , phone                 , mail                          , date_of_birth , driver_licence    ) VALUES
-('alexandre', 'frèche'  , '20 rue des changes'  , '31000'   , 'toulouse', '(+33)608963234'      , 'alexandre.freche@gmail.com'  , '1991/03/21'  , 'driver license b');
+('alexandre', 'frèche'  , '49 route du pesquité', '40140'   , 'azur'    , '(+33)608963234'      , 'alexandre.freche@gmail.com'  , '1991/03/21'  , 'driver license b');
 
 INSERT INTO cv
 (job_title                      , contact_information_id    ) VALUES
